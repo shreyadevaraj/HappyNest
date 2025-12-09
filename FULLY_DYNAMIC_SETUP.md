@@ -31,7 +31,7 @@ Your application now generates **100% dynamic content** based on user requiremen
 3. Go to Settings → Access Tokens
 4. Click "New token"
 5. Name it "HappyNest" and select "Read" permission
-6. Copy the token (starts with `hf_...`)
+6. Copy the token (starts with `...`)
 
 ### Step 2: Update Configuration
 
@@ -39,16 +39,16 @@ Open: `d:\project\backend\src\main\resources\application.properties`
 
 Replace:
 ```
-huggingface.api.token=YOUR_HF_TOKEN_HERE
+huggingface.api.token=YOUR_TOKEN_HERE
 ```
 
 With:
 ```
-huggingface.api.token=hf_YOUR_ACTUAL_TOKEN
+huggingface.api.token=ur_YOUR_ACTUAL_TOKEN
 ```
 
 ## 🎯 How It Works
-
+git grep 
 ### User Fills Form:
 ```
 Plot Size: 40x60 ft
