@@ -1,0 +1,5 @@
+backend/target/
+maven/
+*.log
+.env
+application.properties

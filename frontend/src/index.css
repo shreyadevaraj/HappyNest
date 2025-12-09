@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-stone-50 text-stone-600 antialiased font-sans;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a29e;
+}
+
+/* Door Animation */
+@keyframes doorOpenLeft {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes doorOpenRight {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes textReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.door-left {
+  animation: doorOpenLeft 1.5s ease-in-out 1.2s forwards;
+  background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+  /* Green Door */
+  border-right: 4px solid #065f46;
+}
+
+.door-right {
+  animation: doorOpenRight 1.5s ease-in-out 1.2s forwards;
+  background: linear-gradient(225deg, #34d399 0%, #059669 100%);
+  /* Green Door */
+  border-left: 4px solid #065f46;
+}
+
+.reveal-text {
+  animation: textReveal 1s ease-out 1.5s forwards;
+  opacity: 0;
+}
+
+/* Paper Texture Pattern */
+.bg-grid-pattern {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+}
