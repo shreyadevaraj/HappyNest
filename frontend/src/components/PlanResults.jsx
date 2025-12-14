@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import ThreeDWalkthrough from './ThreeDWalkthrough';
 
-const PlanResults = ({ plans, onSave }) => {
+const PlanResults = ({ plans, onSave, requestData }) => {
     // ... existing state hooks ...
     const activePlanState = useState(0);
     const activePlan = activePlanState[0];
@@ -87,7 +87,14 @@ const PlanResults = ({ plans, onSave }) => {
                             {/* Visual Representation Image */}
                             <div className="rounded-2xl border-8 border-white shadow-2xl overflow-hidden relative group aspect-[4/3]">
                                 <img
-                                    src={current.image || "/plan-a.png"}
+                                    src={(() => {
+                                        const floorType = requestData?.floors || '';
+                                        if (floorType.includes('Single')) return "/house_images/house_single.png";
+                                        if (floorType.includes('G+1')) return "/house_images/house_g1.png";
+                                        if (floorType.includes('G+2')) return "/house_images/house_g2.png";
+                                        if (floorType.includes('G+3')) return "/house_images/house_g3.png";
+                                        return current.image || "/plan-a.png";
+                                    })()}
                                     alt="Architectural Plan"
                                     className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
                                 />

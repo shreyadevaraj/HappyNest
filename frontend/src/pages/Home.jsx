@@ -156,7 +156,7 @@ const Home = () => {
                             >
                                 <span>←</span> New Design
                             </button>
-                            <PlanResults plans={plans} onSave={handleManualSave} />
+                            <PlanResults plans={plans} onSave={handleManualSave} requestData={requestData} />
                         </div>
                     )}
 
