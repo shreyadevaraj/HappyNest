@@ -1,6 +1,6 @@
 # 🏡 HappyNest - AI-Powered Residential Architecture Platform
 
-**HappyNest** is a full-stack application that generates personalized, Vaastu-compliant residential floor plans using AI. Built with React, Spring Boot, and Hugging Face AI models.
+**HappyNest** is a full-stack application that generates personalized, residential floor plans using AI. Built with React, Spring Boot, and Hugging Face AI models.
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
