@@ -39,8 +39,13 @@ public class ArchitectController {
 
                                     if (plans != null && plans.size() >= 3) {
                                         ((ObjectNode) plans.get(0)).put("image", imageTuple.getT1());
+                                        addInteriors((ObjectNode) plans.get(0), request);
+
                                         ((ObjectNode) plans.get(1)).put("image", imageTuple.getT2());
+                                        addInteriors((ObjectNode) plans.get(1), request);
+
                                         ((ObjectNode) plans.get(2)).put("image", imageTuple.getT3());
+                                        addInteriors((ObjectNode) plans.get(2), request);
                                     }
 
                                     return objectMapper.writeValueAsString(root);
@@ -49,5 +54,25 @@ public class ArchitectController {
                                 }
                             });
                 });
+    }
+
+    private void addInteriors(ObjectNode plan, ArchitectRequest request) {
+        String houseType = request.getHouseType() != null ? request.getHouseType().toLowerCase() : "1bhk";
+        boolean isLuxury = houseType.contains("villa") || houseType.contains("4bhk");
+
+        String prefix = isLuxury ? "interior_luxury" : "interior_standard";
+
+        ArrayNode interiors = plan.putArray("interiors");
+        ObjectNode living = interiors.addObject();
+        living.put("name", "Living Room");
+        living.put("image", "/interiors/" + prefix + "_living.png");
+
+        ObjectNode kitchen = interiors.addObject();
+        kitchen.put("name", "Kitchen");
+        kitchen.put("image", "/interiors/" + prefix + "_kitchen.png");
+
+        ObjectNode bedroom = interiors.addObject();
+        bedroom.put("name", "Master Bedroom");
+        bedroom.put("image", "/interiors/" + prefix + "_bedroom.png");
     }
 }

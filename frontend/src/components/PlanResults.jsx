@@ -1,9 +1,15 @@
 import { useState } from 'react';
+import ThreeDWalkthrough from './ThreeDWalkthrough';
 
-const PlanResults = ({ data }) => {
-    const [activePlan, setActivePlan] = useState(0);
+const PlanResults = ({ plans, onSave }) => {
+    // ... existing state hooks ...
+    const activePlanState = useState(0);
+    const activePlan = activePlanState[0];
+    const setActivePlan = activePlanState[1];
+    const [showTour, setShowTour] = useState(false);
 
-    if (!data || !data.plans) {
+    // ... null check ...
+    if (!plans || plans.length === 0) {
         return (
             <div className="bg-white p-8 rounded-xl shadow-sm border border-red-100 text-center">
                 <p className="text-red-500">Error parsing plan data.</p>
@@ -11,20 +17,23 @@ const PlanResults = ({ data }) => {
         )
     }
 
-    const plans = data.plans;
     const current = plans[activePlan];
 
-    // Helper to parse Room Details string into array
+    // ... helper ...
     const parseRoomDetails = (details) => {
-        // Split by comma or known delimiters if simple string, or just return as is if complex
-        // Assuming comma separated from backend mock
         return details.split(',').map(s => s.trim());
     };
-
     const roomItems = parseRoomDetails(current.roomDetails);
 
     return (
         <div className="space-y-10 animate-fade-in-up">
+
+            {showTour && (
+                <ThreeDWalkthrough
+                    planType={current.name}
+                    onClose={() => setShowTour(false)}
+                />
+            )}
 
             {/* Plan Navigation */}
             <div className="sticky top-24 z-20 bg-stone-50/95 backdrop-blur-sm pt-2 -mt-2 pb-4 border-b border-stone-200/50">
@@ -34,8 +43,8 @@ const PlanResults = ({ data }) => {
                             key={idx}
                             onClick={() => setActivePlan(idx)}
                             className={`flex-1 py-3 px-6 rounded-xl text-sm font-bold transition-all whitespace-nowrap border ${activePlan === idx
-                                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-500/20 transform -translate-y-1'
-                                    : 'bg-white text-stone-500 border-stone-200 hover:border-emerald-200 hover:text-emerald-600'
+                                ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-500/20 transform -translate-y-1'
+                                : 'bg-white text-stone-500 border-stone-200 hover:border-emerald-200 hover:text-emerald-600'
                                 }`}
                         >
                             {p.name || `Option ${idx + 1}`}
@@ -55,9 +64,19 @@ const PlanResults = ({ data }) => {
                                 {current.builtUpArea} Built-up Area
                             </p>
                         </div>
-                        <div className="text-right bg-emerald-50 px-6 py-3 rounded-2xl border border-emerald-100">
-                            <p className="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-1">Estimated Budget</p>
-                            <p className="text-2xl md:text-3xl font-black text-stone-800">{current.budgetEstimate}</p>
+                        <div className="flex flex-col items-end gap-3">
+                            <div className="text-right bg-emerald-50 px-6 py-3 rounded-2xl border border-emerald-100">
+                                <p className="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-1">Estimated Budget</p>
+                                <p className="text-2xl md:text-3xl font-black text-stone-800">{current.budgetEstimate}</p>
+                            </div>
+                            {onSave && (
+                                <button
+                                    onClick={() => onSave(current)}
+                                    className="px-6 py-2 bg-stone-800 text-white font-bold rounded-lg hover:bg-emerald-600 transition shadow-lg flex items-center gap-2"
+                                >
+                                    <span>💾</span> Save This Plan
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -72,9 +91,27 @@ const PlanResults = ({ data }) => {
                                     alt="Architectural Plan"
                                     className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-                                    <p className="text-white font-medium">AI Generated Isometric View</p>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                                    <p className="text-white font-medium mb-3">AI Generated Isometric View</p>
+
+                                    {/* Tour Button Overlay */}
+                                    <button
+                                        onClick={() => setShowTour(true)}
+                                        className="w-full bg-white/20 backdrop-blur-md border border-white/40 text-white font-bold py-3 rounded-lg hover:bg-white hover:text-emerald-900 transition flex items-center justify-center gap-2"
+                                    >
+                                        <span className="text-xl">🛠️</span> Enter 3D Walkthrough
+                                    </button>
                                 </div>
+                            </div>
+
+                            {/* Mobile Tour Button (visible if hover is tricky) */}
+                            <div className="block md:hidden">
+                                <button
+                                    onClick={() => setShowTour(true)}
+                                    className="w-full bg-emerald-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-emerald-700 transition flex items-center justify-center gap-2"
+                                >
+                                    <span>🛠️</span> Start 3D Walk
+                                </button>
                             </div>
 
                             <div>
