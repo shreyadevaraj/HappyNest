@@ -33,16 +33,43 @@ const Home = () => {
         setRequestData(data); // Store request data for later saving
 
         try {
+            const payload = {
+                plotSize: data.plotSize,
+                floors: data.floors,
+                houseType: data.houseType,
+                facing: data.facing,
+                budget: data.budget,
+                mandatoryRooms: data.mandatoryRooms
+            };
+
             const response = await fetch("http://localhost:8080/api/architect/generate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
+                body: JSON.stringify(payload),
             });
-            if (!response.ok) throw new Error("Failed to generate plans");
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to generate plans (Status ${response.status}): ${errorText.substring(0, 100)}`);
+            }
 
             const result = await response.json();
-            setPlans(result.plans);
-            // Auto-save removed. User must manually select.
+
+            // Robust parsing: result might be an object or a stringified JSON
+            let finalData = result;
+            if (typeof result === 'string') {
+                try {
+                    finalData = JSON.parse(result);
+                } catch (e) {
+                    console.error("Failed to parse result string:", result);
+                }
+            }
+
+            if (finalData && finalData.plans) {
+                setPlans(finalData.plans);
+            } else {
+                throw new Error("Invalid plan data received from architect engine.");
+            }
         } catch (err) {
             setError(err.message);
         } finally {
@@ -130,7 +157,7 @@ const Home = () => {
                             Design with <span className="text-emerald-600 italic">Clarity</span>
                         </h2>
                         <p className="text-xl text-stone-500 max-w-2xl mx-auto font-light leading-relaxed">
-                            Generate professional, Vaastu-compliant residential floor plans tailored to your exact plot and budget using advanced AI.
+                            Generate professional, feature-rich residential floor plans tailored to your exact plot and budget using advanced AI.
                         </p>
                     </div>
 
@@ -176,7 +203,7 @@ const Home = () => {
 
                                 <div className="grid md:grid-cols-3 gap-8">
                                     {[
-                                        { title: "Vaastu for Modern Homes: A 2024 Guide", cat: "Design", img: "/blog-vaastu.png" },
+                                        { title: "Smart Living Trends: A 2024 Guide", cat: "Design", img: "/blog-vaastu.png" },
                                         { title: "Maximizing Space in 30x40 Plots", cat: "Planning", img: "/blog-space.png" },
                                         { title: "Sustainable Materials for Indian Climate", cat: "Construction", img: "/blog-eco.png" },
                                     ].map((blog, i) => (
@@ -198,29 +225,29 @@ const Home = () => {
                                 <div className="relative z-10 text-center max-w-3xl mx-auto mb-16">
                                     <span className="text-emerald-600 font-bold tracking-wider text-xs uppercase mb-3 block">Testimonials</span>
                                     <h3 className="text-3xl md:text-4xl font-serif text-stone-800 mb-6">Loved by Homeowners</h3>
-                                    <p className="text-stone-500 text-lg">Over 10,000 families have found their dream blueprints with HappyNest.</p>
+                                    <p className="text-stone-500 text-lg">Real feedback from families building with our AI-driven designs.</p>
                                 </div>
 
                                 <div className="grid md:grid-cols-2 gap-8 relative z-10">
                                     <div className="bg-stone-50 p-8 rounded-2xl border border-stone-100 items-start gap-4 hover:shadow-lg transition">
                                         <div className="flex text-emerald-500 mb-4">★★★★★</div>
-                                        <p className="text-stone-700 text-lg italic mb-6">"The detailed 3D walkthrough blew my mind. I could clearly see how my furniture would fit in the 3BHK layout before even laying a brick!"</p>
+                                        <p className="text-stone-700 text-lg italic mb-6">"I was struggling with how to fit a 3BHK on my small 30x40 plot. The AI's ability to optimize space while maintaining smart lifestyle features was exactly what I needed. The budget estimation was spot on too!"</p>
                                         <div className="flex items-center gap-4">
                                             <img src="/customer-rajesh.png" className="w-14 h-14 rounded-full border-2 border-white shadow-md object-cover" alt="Rajesh" />
                                             <div>
-                                                <p className="font-bold text-stone-900 text-sm">Rajesh Kumar</p>
-                                                <p className="text-xs text-stone-500">Bangalore, built 2023</p>
+                                                <p className="font-bold text-stone-900 text-sm">Animesh Roy</p>
+                                                <p className="text-xs text-stone-500">Kolkata, 3BHK Duplex Plan</p>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="bg-stone-50 p-8 rounded-2xl border border-stone-100 items-start gap-4 hover:shadow-lg transition">
                                         <div className="flex text-emerald-500 mb-4">★★★★★</div>
-                                        <p className="text-stone-700 text-lg italic mb-6">"I needed a Vaastu compliant plan for a west-facing plot. HappyNest generated 3 perfect options instantly. Saved me months of architect meetings."</p>
+                                        <p className="text-stone-700 text-lg italic mb-6">"Designing my dream villa felt overwhelming until I used the AI Discovery Assistant. It asked the right questions about my lifestyle and generated a stunning G+2 plan that my manual architect hadn't even thought of."</p>
                                         <div className="flex items-center gap-4">
                                             <img src="/customer-priya.png" className="w-14 h-14 rounded-full border-2 border-white shadow-md object-cover" alt="Priya" />
                                             <div>
-                                                <p className="font-bold text-stone-900 text-sm">Priya Sharma</p>
-                                                <p className="text-xs text-stone-500">Hyderabad, built 2024</p>
+                                                <p className="font-bold text-stone-900 text-sm">Meenakshi Iyer</p>
+                                                <p className="text-xs text-stone-500">Chennai, Luxury Villa Plan</p>
                                             </div>
                                         </div>
                                     </div>

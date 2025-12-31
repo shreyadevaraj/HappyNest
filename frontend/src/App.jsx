@@ -7,6 +7,7 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Architects from "./pages/Architects";
 import ProjectView from "./pages/ProjectView";
+import DiscoveryPage from "./pages/DiscoveryPage";
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }) => {
@@ -38,6 +39,12 @@ function App() {
           <Route path="/project-view" element={
             <ProtectedRoute>
               <ProjectView />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/discovery" element={
+            <ProtectedRoute>
+              <DiscoveryPage />
             </ProtectedRoute>
           } />
 

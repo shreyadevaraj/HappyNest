@@ -2,13 +2,21 @@ package com.architect.app;
 
 import com.architect.app.model.Architect;
 import com.architect.app.repository.ArchitectRepository;
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import reactor.netty.http.client.HttpClient;
+
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 public class ArchitectAppApplication {
@@ -17,27 +25,40 @@ public class ArchitectAppApplication {
 		SpringApplication.run(ArchitectAppApplication.class, args);
 	}
 
+	// WebClient with long OpenAI-safe timeouts
 	@Bean
 	public WebClient.Builder webClientBuilder() {
-		return WebClient.builder();
+		HttpClient httpClient = HttpClient.create()
+				.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 300000)
+				.responseTimeout(Duration.ofMinutes(5))
+				.doOnConnected(conn -> conn
+						.addHandlerLast(new ReadTimeoutHandler(300, TimeUnit.SECONDS))
+						.addHandlerLast(new WriteTimeoutHandler(300, TimeUnit.SECONDS)));
+
+		return WebClient.builder()
+				.clientConnector(new ReactorClientHttpConnector(httpClient));
 	}
 
+	// 🔥 FINAL CORS LOCK (frontend on 5173)
 	@Bean
 	public WebMvcConfigurer corsConfigurer() {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**")
-						.allowedOrigins("http://localhost:5173", "http://localhost:3000")
-						.allowedMethods("*");
+				registry.addMapping("/api/**")
+						.allowedOrigins("http://localhost:5173")
+						.allowedMethods("GET", "POST", "OPTIONS")
+						.allowedHeaders("*");
 			}
 		};
 	}
 
+	// Demo architects auto seed
 	@Bean
 	public CommandLineRunner demo(ArchitectRepository repository) {
 		return (args) -> {
 			if (repository.count() == 0) {
+
 				Architect a1 = new Architect();
 				a1.setName("Ar. Rajesh Kumar");
 				a1.setSpecialty("Sustainable Modern Homes");
@@ -67,5 +88,4 @@ public class ArchitectAppApplication {
 			}
 		};
 	}
-
 }

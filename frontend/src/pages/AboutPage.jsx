@@ -11,7 +11,7 @@ const AboutPage = () => {
                     <h2 className="text-3xl font-bold mb-4">Our Mission</h2>
                     <p className="text-lg text-emerald-50 leading-relaxed">
                         To democratize professional architectural planning by leveraging AI technology,
-                        making high-quality, Vaastu-compliant home designs accessible to everyone.
+                        making high-quality, lifestyle-optimized home designs accessible to everyone.
                     </p>
                 </div>
 
@@ -22,8 +22,8 @@ const AboutPage = () => {
                         </h3>
                         <p className="text-stone-600 leading-relaxed">
                             HappyNest is an AI-powered residential architecture platform that generates optimized,
-                            budget-conscious floor plans tailored to your specific requirements. We combine traditional
-                            Vaastu principles with modern design aesthetics to create homes that are both functional and harmonious.
+                            budget-conscious floor plans tailored to your specific requirements. We combine smart
+                            functionality with modern design aesthetics to create homes that are both functional and harmonious.
                         </p>
                     </div>
 
@@ -39,9 +39,9 @@ const AboutPage = () => {
                             <p className="text-sm text-stone-600">Clear cost breakdowns for every design tier</p>
                         </div>
                         <div className="bg-violet-50 p-6 rounded-2xl border border-violet-100">
-                            <div className="text-3xl mb-3">🧭</div>
-                            <h4 className="font-bold text-stone-800 mb-2">Vaastu Compliant</h4>
-                            <p className="text-sm text-stone-600">Traditional wisdom meets modern living</p>
+                            <div className="text-3xl mb-3">✨</div>
+                            <h4 className="font-bold text-stone-800 mb-2">Smart Features</h4>
+                            <p className="text-sm text-stone-600">Lifestyle-optimized for modern urban living</p>
                         </div>
                     </div>
 

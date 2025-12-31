@@ -1,15 +1,42 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ArchitectForm = ({ onSubmit }) => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         plotSize: '',
-        floors: 'G+1',
-        houseType: '3BHK',
+        floors: '1',
+        floorConfigs: ['3 BHK Comfort'], // Array storing type for each floor
         facing: 'North',
         budget: '',
         mandatoryRooms: '',
-        vaastu: 'Strict compliance',
     });
+
+    const getFloorCount = (floorVal) => {
+        return parseInt(floorVal) || 1;
+    };
+
+    const handleFloorChange = (e) => {
+        const val = e.target.value;
+        const count = getFloorCount(val);
+        const newConfigs = [...formData.floorConfigs];
+
+        if (count > newConfigs.length) {
+            for (let i = newConfigs.length; i < count; i++) {
+                newConfigs.push('2 BHK Standard');
+            }
+        } else {
+            newConfigs.splice(count);
+        }
+
+        setFormData({ ...formData, floors: val, floorConfigs: newConfigs });
+    };
+
+    const handleFloorConfigChange = (index, value) => {
+        const newConfigs = [...formData.floorConfigs];
+        newConfigs[index] = value;
+        setFormData({ ...formData, floorConfigs: newConfigs });
+    };
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -17,29 +44,46 @@ const ArchitectForm = ({ onSubmit }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSubmit(formData);
+        // Consolidate floor configs into a descriptive houseType string for the backend
+        const consolidatedHouseType = formData.floorConfigs
+            .map((type, i) => `Floor ${i + 1}: ${type}`)
+            .join(', ');
+
+        onSubmit({
+            ...formData,
+            houseType: consolidatedHouseType
+        });
     };
 
     return (
         <div className="bg-white rounded-[2rem] shadow-2xl shadow-stone-200 border border-stone-100 overflow-hidden relative">
-            {/* Decorative background accent */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full blur-3xl -z-0 translate-x-1/2 -translate-y-1/2 opacity-50"></div>
 
             <div className="p-8 md:p-12 relative z-10">
-                <div className="flex items-center gap-4 mb-10 pb-8 border-b border-stone-100">
-                    <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                        </svg>
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10 pb-8 border-b border-stone-100">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 className="text-3xl md:text-4xl font-serif text-stone-800">Project Requirements</h3>
+                            <p className="text-stone-500 text-sm mt-1">Tell us about your plot to generate the perfect plan</p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 className="text-3xl md:text-4xl font-serif text-stone-800">Project Requirements</h3>
-                        <p className="text-stone-500 text-sm mt-1">Tell us about your plot to generate the perfect plan</p>
-                    </div>
+
+                    <button
+                        type="button"
+                        onClick={() => navigate('/discovery')}
+                        className="px-6 py-3 bg-violet-50 text-violet-700 font-bold rounded-xl border border-violet-100 hover:bg-violet-100 transition flex items-center gap-2 group"
+                    >
+                        <span className="text-lg">✨</span>
+                        Not sure? Let AI Help
+                    </button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
-
                     <div className="col-span-1 space-y-2 group">
                         <label className="text-xs font-bold uppercase tracking-widest text-stone-400 group-focus-within:text-emerald-600 transition-colors">Plot Size (ft)</label>
                         <div className="relative">
@@ -77,18 +121,19 @@ const ArchitectForm = ({ onSubmit }) => {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-stone-400">Floors</label>
+                        <label className="text-xs font-bold uppercase tracking-widest text-stone-400">Number of Floors</label>
                         <div className="relative">
                             <select
                                 name="floors"
                                 className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all outline-none text-stone-800 font-medium appearance-none cursor-pointer"
                                 value={formData.floors}
-                                onChange={handleChange}
+                                onChange={handleFloorChange}
                             >
-                                <option>Single Floor</option>
-                                <option>G+1 (Duplex)</option>
-                                <option>G+2 (Triplex)</option>
-                                <option>G+3</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
                             </select>
                             <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-stone-400">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
@@ -98,26 +143,36 @@ const ArchitectForm = ({ onSubmit }) => {
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-stone-400">House Type</label>
-                        <div className="relative">
-                            <select
-                                name="houseType"
-                                className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all outline-none text-stone-800 font-medium appearance-none cursor-pointer"
-                                value={formData.houseType}
-                                onChange={handleChange}
-                            >
-                                <option>1 BHK Compact</option>
-                                <option>2 BHK Standard</option>
-                                <option>3 BHK Comfort</option>
-                                <option>4 BHK Luxury</option>
-                                <option>Villa Estate</option>
-                            </select>
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-stone-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-                                    <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
-                                </svg>
-                            </div>
+                    <div className="space-y-4 md:col-span-2 bg-stone-50 p-6 rounded-2xl border border-stone-200">
+                        <h4 className="text-sm font-bold text-stone-700 mb-2">Configure House Type per Floor</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {formData.floorConfigs.map((config, index) => (
+                                <div key={index} className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
+                                        Floor {index + 1}
+                                    </label>
+                                    <div className="relative">
+                                        <select
+                                            className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl focus:border-emerald-500 transition-all outline-none text-sm text-stone-800 font-semibold appearance-none cursor-pointer"
+                                            value={config}
+                                            onChange={(e) => handleFloorConfigChange(index, e.target.value)}
+                                        >
+                                            <option>1 BHK Compact</option>
+                                            <option>2 BHK Standard</option>
+                                            <option>3 BHK Comfort</option>
+                                            <option>4 BHK Luxury</option>
+                                            <option>Villa Estate</option>
+                                            <option>Open Terrace / Garden</option>
+                                            <option>Office / Commercial Space</option>
+                                        </select>
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-stone-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                                                <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
 
@@ -143,29 +198,8 @@ const ArchitectForm = ({ onSubmit }) => {
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-stone-400">Vaastu</label>
-                        <div className="relative">
-                            <select
-                                name="vaastu"
-                                className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all outline-none text-stone-800 font-medium appearance-none cursor-pointer"
-                                value={formData.vaastu}
-                                onChange={handleChange}
-                            >
-                                <option>Strict (100% Compliant)</option>
-                                <option>Moderate (Balanced)</option>
-                                <option>Neutral (Practical)</option>
-                            </select>
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-stone-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-                                    <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-
                     <div className="md:col-span-2 space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-stone-400 group-focus-within:text-emerald-600 transition-colors">Special Requirements</label>
+                        <label className="text-xs font-bold uppercase tracking-widest text-stone-400 group-focus-within:text-emerald-600 transition-colors">Project Features & Custom Needs</label>
                         <textarea
                             name="mandatoryRooms"
                             rows="3"

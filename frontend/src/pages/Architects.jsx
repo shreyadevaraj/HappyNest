@@ -10,10 +10,10 @@ const Architects = () => {
             experience: "12 Years Exp",
             rating: 4.9,
             reviews: 124,
-            image: "https://ui-avatars.com/api/?name=Arjun+Verma&background=0D9488&color=fff&size=200", // Fallback generated avatar
+            image: "/architects/arch1.png",
             specialty: "Modern Villas & Sustainable Design",
             location: "Bangalore",
-            tags: ["Vaastu Expert", "Green Building", "Luxury"]
+            tags: ["Smart Design", "Green Building", "Luxury"]
         },
         {
             id: 2,
@@ -22,7 +22,7 @@ const Architects = () => {
             experience: "8 Years Exp",
             rating: 4.8,
             reviews: 98,
-            image: "https://ui-avatars.com/api/?name=Sara+Khan&background=059669&color=fff&size=200",
+            image: "/architects/arch2.png",
             specialty: "Smart Homes & Minimalist Interiors",
             location: "Mumbai",
             tags: ["Interior Styling", "Space Planning", "Renovation"]
@@ -34,7 +34,7 @@ const Architects = () => {
             experience: "15 Years Exp",
             rating: 5.0,
             reviews: 210,
-            image: "https://ui-avatars.com/api/?name=Vikram+Singh&background=374151&color=fff&size=200",
+            image: "/architects/arch3.png",
             specialty: "High-Rise Structures & Safety",
             location: "Delhi NCR",
             tags: ["Structural Safety", "Civil Engineering", "Cost Estimation"]
@@ -46,22 +46,70 @@ const Architects = () => {
             experience: "6 Years Exp",
             rating: 4.7,
             reviews: 45,
-            image: "https://ui-avatars.com/api/?name=Ananya+Das&background=D97706&color=fff&size=200",
+            image: "/architects/arch4.png",
             specialty: "Urban Gardens & Roof Terraces",
             location: "Pune",
             tags: ["Landscaping", "Outdoor Living", "Botanical Design"]
         },
         {
             id: 5,
-            name: "Project Studio X",
-            title: "Architecture Firm",
-            experience: "20+ Years Exp",
-            rating: 4.6,
-            reviews: 312,
-            image: "https://ui-avatars.com/api/?name=Studio+X&background=7C3AED&color=fff&size=200",
-            specialty: "Commercial & Residential Complexes",
+            name: "Priya Sharma",
+            title: "Urban Planner",
+            experience: "10 Years Exp",
+            rating: 4.9,
+            reviews: 86,
+            image: "/architects/arch5.png",
+            specialty: "Community Living & Smart Cities",
             location: "Hyderabad",
-            tags: ["Turnkey Projects", "Commercial", "Large Scale"]
+            tags: ["Urban Design", "Infrastructure", "Master Planning"]
+        },
+        {
+            id: 6,
+            name: "David Miller",
+            title: "Acoustic Consultant",
+            experience: "14 Years Exp",
+            rating: 4.8,
+            reviews: 52,
+            image: "/architects/arch6.png",
+            specialty: "Home Theaters & Sound Insulation",
+            location: "Chennai",
+            tags: ["Acoustics", "Media Rooms", "Hi-Fi"]
+        },
+        {
+            id: 7,
+            name: "Rohan Malhotra",
+            title: "Project Manager",
+            experience: "18 Years Exp",
+            rating: 5.0,
+            reviews: 156,
+            image: "/architects/arch7.png",
+            specialty: "Turnkey Construction & Timelines",
+            location: "Gurgaon",
+            tags: ["Project Management", "Quality Control", "Budgeting"]
+        },
+        {
+            id: 8,
+            name: "Elena Rodriguez",
+            title: "Sustainable Architect",
+            experience: "9 Years Exp",
+            rating: 4.7,
+            reviews: 67,
+            image: "/architects/arch8.png",
+            specialty: "Eco-friendly Materials & Solar Tech",
+            location: "Ahmedabad",
+            tags: ["Net Zero", "Solar Integration", "Organic"]
+        },
+        {
+            id: 9,
+            name: "Sanjay Gupta",
+            title: "Conservation Architect",
+            experience: "25+ Years Exp",
+            rating: 4.9,
+            reviews: 204,
+            image: "/architects/arch9.png",
+            specialty: "Heritage Restoration & Traditional Arts",
+            location: "Jaipur",
+            tags: ["Heritage", "Restoration", "Antique"]
         }
     ];
 
@@ -100,7 +148,7 @@ const Architects = () => {
                         <div key={arch.id} className="bg-white rounded-3xl p-6 shadow-xl shadow-stone-100 border border-stone-100 hover:-translate-y-1 hover:shadow-2xl hover:border-emerald-100 transition duration-300">
                             <div className="flex items-start justify-between mb-6">
                                 <div className="flex items-center gap-4">
-                                    <img src={arch.image} alt={arch.name} className="w-16 h-16 rounded-full object-cover border-2 border-primary-50" />
+                                    <img src={arch.image} alt={arch.name} className="w-16 h-16 rounded-full border-2 border-white shadow-md object-cover" />
                                     <div>
                                         <h3 className="font-bold text-lg text-stone-800">{arch.name}</h3>
                                         <p className="text-emerald-600 text-sm font-medium">{arch.title}</p>
