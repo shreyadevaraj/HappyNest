@@ -13,51 +13,26 @@ HappyNest now uses **100% OpenAI-powered dynamic generation** for all content:
 ## 🔄 How It Works
 
 ### 1. **User Submits Request**
-The user fills out the form with:
-- Plot Size (e.g., "30x40 ft")
-- House Type (e.g., "2BHK", "3BHK", "Villa")
-- Number of Floors (e.g., "Single Floor", "G+1")
-- Facing Direction (e.g., "North", "East")
-- Budget (e.g., "50 Lakhs")
-- Mandatory Rooms (e.g., "Pooja Room, Study")
-- Vaastu Compliance (Yes/No)
+The user fills out the form with plot size, house type, floors, etc.
 
 ### 2. **Backend Processing Pipeline**
 
-#### **Step 1: Text Generation (OpenAI GPT-4o-mini)**
+#### **Step 1: Text & Plan Generation (OpenAI GPT-4o-mini)**
 ```
 📋 Input: User requirements
 🤖 API: OpenAI Chat Completions API (gpt-4o-mini)
-📤 Output: JSON with 3 plan variants (A, B, C)
+📤 Output: JSON with 1 Optimized plan
 ```
 
-The AI generates:
-- **Plan A**: Budget-friendly option (within budget)
-- **Plan B**: Enhanced comfort (10-20% over budget)
-- **Plan C**: Luxury option (40-50% over budget)
+The AI generates a single, high-quality architectural plan optimized for the user's budget and requirements.
 
-Each plan includes:
-- Name & Headline
-- Room Details (with dimensions)
-- Built-up Area
-- Floor Distribution
-- Light & Ventilation strategy
-- Vaastu Compliance details
-- Budget Estimate
-- Recommended Contractors
+#### **Step 2: AI Image Generation (OpenAI DALL-E 3)**
+```
+🎨 Total Images Generated: 1 per request
+└── 1 Custom Architectural Visualization
+```
 
-#### **Step 2: Image Generation (OpenAI DALL-E 3)**
-```
-🎨 Total Images Generated: 12 per request
-├── 3 Floor Plan Images (one per plan)
-│   ├── Plan A: Budget-friendly design
-│   ├── Plan B: Mid-range design
-│   └── Plan C: Luxury design
-└── 9 Interior Images (3 per plan)
-    ├── Plan A: Living Room, Kitchen, Bedroom
-    ├── Plan B: Living Room, Kitchen, Bedroom
-    └── Plan C: Living Room, Kitchen, Bedroom
-```
+The system generates a professional-grade, photorealistic architectural rendering of the generated plan using DALL-E 3.
 
 **Floor Plan Images** are split-screen visualizations:
 - **Left Half**: 2D architectural blueprint with room labels

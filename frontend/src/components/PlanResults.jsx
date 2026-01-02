@@ -36,23 +36,25 @@ const PlanResults = ({ plans, onSave, requestData }) => {
                 />
             )}
 
-            {/* Plan Navigation */}
-            <div className="sticky top-24 z-20 bg-stone-50/95 backdrop-blur-sm pt-2 -mt-2 pb-4 border-b border-stone-200/50">
-                <div className="max-w-7xl mx-auto flex overflow-x-auto gap-3 py-2 px-1">
-                    {plans.map((p, idx) => (
-                        <button
-                            key={idx}
-                            onClick={() => setActivePlan(idx)}
-                            className={`flex-1 py-3 px-6 rounded-xl text-sm font-bold transition-all whitespace-nowrap border ${activePlan === idx
-                                ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-500/20 transform -translate-y-1'
-                                : 'bg-white text-stone-500 border-stone-200 hover:border-emerald-200 hover:text-emerald-600'
-                                }`}
-                        >
-                            {p.name || (p.plan ? `Plan ${p.plan}` : `Option ${idx + 1}`)}
-                        </button>
-                    ))}
+            {/* Plan Navigation - Only show if multiple plans exist */}
+            {plans.length > 1 && (
+                <div className="sticky top-24 z-20 bg-stone-50/95 backdrop-blur-sm pt-2 -mt-2 pb-4 border-b border-stone-200/50">
+                    <div className="max-w-7xl mx-auto flex overflow-x-auto gap-3 py-2 px-1">
+                        {plans.map((p, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => setActivePlan(idx)}
+                                className={`flex-1 py-3 px-6 rounded-xl text-sm font-bold transition-all whitespace-nowrap border ${activePlan === idx
+                                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-500/20 transform -translate-y-1'
+                                    : 'bg-white text-stone-500 border-stone-200 hover:border-emerald-200 hover:text-emerald-600'
+                                    }`}
+                            >
+                                {p.name || (p.plan ? `Plan ${p.plan}` : `Option ${idx + 1}`)}
+                            </button>
+                        ))}
+                    </div>
                 </div>
-            </div>
+            )}
 
             <div className="bg-white rounded-3xl shadow-xl border border-stone-100 overflow-hidden">
 
@@ -85,27 +87,38 @@ const PlanResults = ({ plans, onSave, requestData }) => {
 
                         {/* Left Column: Visuals & Layout */}
                         <div className="space-y-8">
-                            {/* Visual Representation Image */}
-                            <div className="rounded-2xl border-8 border-white shadow-2xl overflow-hidden relative group aspect-[4/3]">
-                                <img
-                                    src={(() => {
-                                        const img = current.image;
-                                        if (!img || img === '/placeholder-house.png') return "/house_images/house_single.png";
-                                        return img;
-                                    })()}
-                                    alt="Architectural Plan"
-                                    className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                                    <p className="text-white font-medium mb-3">AI Generated Architectural View</p>
+                            {/* Visual Representation Images */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Exterior Image */}
+                                <div className="rounded-2xl border-4 border-white shadow-xl overflow-hidden relative group aspect-square bg-stone-100">
+                                    <img
+                                        src={current.exteriorImage || current.image || "/house_images/house_single.png"}
+                                        alt="Exterior View"
+                                        className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
+                                    />
+                                    <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                        Exterior View
+                                    </div>
+                                </div>
 
-                                    {/* View Plan Button Overlay */}
-                                    <button
-                                        onClick={() => setShowFloorPlan(true)}
-                                        className="w-full bg-white/20 backdrop-blur-md border border-white/40 text-white font-bold py-3 rounded-lg hover:bg-white hover:text-emerald-900 transition flex items-center justify-center gap-2"
-                                    >
-                                        <span className="text-xl">📋</span> View Floor Plan
-                                    </button>
+                                {/* Floor Plan Image */}
+                                <div className="rounded-2xl border-4 border-white shadow-xl overflow-hidden relative group aspect-square bg-stone-100">
+                                    <img
+                                        src={current.floorPlanImage || "/house_images/house_single.png"}
+                                        alt="Floor Plan"
+                                        className="w-full h-full object-contain p-2 transform transition-transform duration-700 group-hover:scale-110"
+                                    />
+                                    <div className="absolute top-3 left-3 bg-emerald-600 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                        Floor Plan
+                                    </div>
+                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <button
+                                            onClick={() => setShowFloorPlan(true)}
+                                            className="bg-white text-emerald-600 font-bold px-4 py-2 rounded-lg shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all"
+                                        >
+                                            Enlarge Plan
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 

@@ -39,7 +39,7 @@ public class CostOptimizedOpenAIService {
         }
 
         String prompt = createPrompt(request);
-        System.out.println("🤖 Generating plans with OpenAI gpt-4o-mini (STRICT LOW-COST MODE)...");
+        System.out.println("🤖 Generating 1 AI plan with gpt-4o-mini (STRICT SINGLE-PLAN MODE)...");
 
         Map<String, Object> body = Map.of(
                 "model", "gpt-4o-mini",
@@ -55,22 +55,88 @@ public class CostOptimizedOpenAIService {
                 .bodyValue(body)
                 .retrieve()
                 .bodyToMono(String.class)
-                .map(response -> {
+                .flatMap(response -> {
                     try {
                         JsonNode root = objectMapper.readTree(response);
-                        String content = root.path("choices").get(0).path("message").path("content").asText();
-                        content = cleanJson(content);
-                        System.out.println("✅ Plans generated successfully via OpenAI");
-                        return content;
+                        String rawContent = root.path("choices").get(0).path("message").path("content").asText();
+                        final String cleanContent = cleanJson(rawContent);
+
+                        // Parse JSON to get prompts
+                        final JsonNode planJson = objectMapper.readTree(cleanContent);
+                        final JsonNode plans = planJson.path("plans");
+                        if (!plans.isArray() || plans.isEmpty()) {
+                            System.out.println("⚠️ OpenAI returned invalid plan array");
+                            return Mono.just(cleanContent);
+                        }
+
+                        String exteriorPrompt = plans.get(0).path("exteriorPrompt").asText();
+                        String floorPlanPrompt = plans.get(0).path("floorPlanPrompt").asText();
+
+                        if ((exteriorPrompt == null || exteriorPrompt.isEmpty())
+                                && (floorPlanPrompt == null || floorPlanPrompt.isEmpty())) {
+                            System.out.println("⚠️ No image prompts found in AI response");
+                            return Mono.just(cleanContent);
+                        }
+
+                        System.out
+                                .println("🎨 Generating separate AI images (Exterior & Floor Plan) using DALL-E 2...");
+
+                        Mono<String> exteriorImageMono = generateImage(exteriorPrompt,
+                                "Professional architectural exterior visualization of: ");
+                        Mono<String> floorPlanImageMono = generateImage(floorPlanPrompt,
+                                "Professional 2D architectural floor plan blueprint of: ");
+
+                        return Mono.zip(exteriorImageMono, floorPlanImageMono)
+                                .map(tuple -> {
+                                    try {
+                                        com.fasterxml.jackson.databind.node.ObjectNode firstPlan = (com.fasterxml.jackson.databind.node.ObjectNode) plans
+                                                .get(0);
+                                        firstPlan.put("image", tuple.getT1()); // Keep 'image' for backward
+                                                                               // compatibility
+                                        firstPlan.put("exteriorImage", tuple.getT1());
+                                        firstPlan.put("floorPlanImage", tuple.getT2());
+                                        System.out.println("✅ Both AI Images generated successfully via DALL-E 2");
+                                        return planJson.toString();
+                                    } catch (Exception e) {
+                                        return cleanContent;
+                                    }
+                                });
                     } catch (Exception e) {
                         System.err.println("❌ Failed to parse OpenAI response: " + e.getMessage());
-                        return getMockResponse(request);
+                        return Mono.just(getMockResponse(request));
                     }
                 })
                 .onErrorResume(e -> {
                     System.err.println("❌ OpenAI API call failed: " + e.getMessage());
                     return Mono.just(getMockResponse(request));
                 });
+    }
+
+    private Mono<String> generateImage(String prompt, String prefix) {
+        if (prompt == null || prompt.isEmpty())
+            return Mono.just("");
+
+        Map<String, Object> body = Map.of(
+                "model", "dall-e-2",
+                "prompt", prefix + prompt + ". Clean architectural style, high quality.",
+                "n", 1,
+                "size", "256x256"); // Smallest size = cheapest cost
+
+        return webClient.post()
+                .uri("/images/generations")
+                .header("Authorization", "Bearer " + apiKey)
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(String.class)
+                .map(response -> {
+                    try {
+                        JsonNode root = objectMapper.readTree(response);
+                        return root.path("data").get(0).path("url").asText();
+                    } catch (Exception e) {
+                        return "";
+                    }
+                })
+                .onErrorReturn("");
     }
 
     public Mono<String> suggestConfiguration(Map<String, String> lifestyleData) {
@@ -143,19 +209,14 @@ public class CostOptimizedOpenAIService {
         String facing = r.getFacing() != null ? r.getFacing() : "East";
 
         return String.format("{\"plans\":[" +
-                "{\"plan\":\"A\",\"title\":\"Budget-Optimized %s\",\"rooms\":\"Living, Kitchen, 2 Bedrooms\",\"builtUpArea\":\"1200 sq.ft\",\"budgetEstimate\":\"%s\",\"imagePrompt\":\"Simple modern Indian %s house, %s floors, %s facing\",\"lightVentilation\":\"Optimized for cross-ventilation in all rooms\",\"highlights\":\"Maximized usable area with zero-waste corridor design\",\"houseFeatures\":[\"Space-saving modular kitchen\",\"Efficient LED lighting system\",\"Large windows for natural light\"]},"
-                +
-                "{\"plan\":\"B\",\"title\":\"Enhanced Comfort %s\",\"rooms\":\"Large Living, Modular Kitchen, 3 Bedrooms\",\"builtUpArea\":\"1500 sq.ft\",\"budgetEstimate\":\"15-20%% over budget\",\"imagePrompt\":\"Mid-range modern Indian %s house, %s floors, %s facing\",\"lightVentilation\":\"Bay windows in master bedroom for maximum sunlight\",\"highlights\":\"Enhanced spatial flow with integrated workspace zones\",\"houseFeatures\":[\"Automated smart home sensors\",\"Premium flooring finishing\",\"Solar-ready roof design\"]},"
-                +
-                "{\"plan\":\"C\",\"title\":\"Luxury %s Villa\",\"rooms\":\"Double-height Living, Home Theater, 4 Bedrooms\",\"builtUpArea\":\"2200 sq.ft\",\"budgetEstimate\":\"50%% over budget\",\"imagePrompt\":\"Luxury Indian %s villa, %s floors, %s facing\",\"lightVentilation\":\"Double-height atrium providing massive natural light overflow\",\"highlights\":\"Premium lifestyle design with seamless indoor-outdoor transition\",\"houseFeatures\":[\"Private home theater with acoustic treatment\",\"Italian marble flooring throughout\",\"Designer landscape garden with automatic irrigation\"]}"
-                +
-                "]}", houseType, budget, houseType, floors, facing, houseType, houseType, floors, facing,
-                houseType, houseType, floors, facing);
+                "{\"plan\":\"Optimized\",\"title\":\"%s Dream Home\",\"rooms\":\"Living, Kitchen, %s\",\"builtUpArea\":\"1200 sq.ft\",\"budgetEstimate\":\"%s\",\"exteriorPrompt\":\"Modern %s house exterior\",\"floorPlanPrompt\":\"Detailed %s floor plan\",\"lightVentilation\":\"Optimized for cross-ventilation in all rooms\",\"highlights\":\"Maximized usable area with zero-waste corridor design\",\"houseFeatures\":[\"Space-saving modular kitchen\",\"Efficient LED lighting system\",\"Large windows for natural light\"]}"
+                + "]}", houseType, houseType, budget, houseType, houseType);
     }
 
     private String createPrompt(ArchitectRequest r) {
         return String.format(
-                "Generate 3 architectural plan variants (A, B, C) for an Indian residential house.\\n\\n" +
+                "Generate EXACTLY ONE architectural plan for an Indian residential house matching THESE specific requirements.\\n\\n"
+                        +
                         "Requirements:\\n" +
                         "- Plot: %s\\n" +
                         "- Floors: %s\\n" +
@@ -164,15 +225,14 @@ public class CostOptimizedOpenAIService {
                         "- Budget: %s\\n" +
                         "- Rooms: %s\\n\\n" +
                         "Rules:\\n" +
-                        "• Plan A = within budget\\n" +
-                        "• Plan B = 10-20%% over\\n" +
-                        "• Plan C = 40-50%% over (luxury)\\n" +
-                        "• Include 'imagePrompt' for a split-screen visualization (Left: 2D Blueprint, Right: 3D Exterior)\\n"
+                        "• Plan must be within or slightly above budget (optimized for value)\\n" +
+                        "• Include 'exteriorPrompt' (a detailed prompt for a 3D architectural exterior render)\\n" +
+                        "• Include 'floorPlanPrompt' (a detailed prompt for a 2D architectural floor plan blueprint)\\n"
                         +
-                        "• For each plan, include 'lightVentilation' (a string), 'highlights' (a string summarizing project's efficiency), and 'houseFeatures' (an array of strings showing premium additions).\\n\\n"
+                        "• Include 'lightVentilation' (a string), 'highlights' (summary), and 'houseFeatures' (array of strings).\\n\\n"
                         +
                         "OUTPUT FORMAT (STRICT JSON, no markdown):\\n" +
-                        "{\"plans\":[{\"plan\":\"A\",\"title\":\"...\",\"rooms\":\"...\",\"builtUpArea\":\"...\",\"budgetEstimate\":\"...\",\"imagePrompt\":\"...\",\"lightVentilation\":\"...\",\"highlights\":\"...\",\"houseFeatures\":[\"...\", \"...\"]},{\"plan\":\"B\",...},{\"plan\":\"C\",...}]}",
+                        "{\"plans\":[{\"plan\":\"Optimized\",\"title\":\"...\",\"rooms\":\"...\",\"builtUpArea\":\"...\",\"budgetEstimate\":\"...\",\"exteriorPrompt\":\"...\",\"floorPlanPrompt\":\"...\",\"lightVentilation\":\"...\",\"highlights\":\"...\",\"houseFeatures\":[\"...\", \"...\"]}]}",
                 r.getPlotSize(), r.getFloors(), r.getHouseType(), r.getFacing(), r.getBudget(),
                 r.getMandatoryRooms());
     }

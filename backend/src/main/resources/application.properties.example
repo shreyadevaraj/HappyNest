@@ -1,0 +1,6 @@
+spring.application.name=app
+server.port=8080
+
+# OpenAI Configuration
+# Add your API key here
+openai.api.key=YOUR_OPENAI_API_KEY_HERE

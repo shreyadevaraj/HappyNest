@@ -259,7 +259,7 @@ const DiscoveryPage = () => {
                     <div className="space-y-10 animate-fade-in-up">
                         <div className="text-center">
                             <h2 className="text-4xl font-serif text-stone-800 mb-2">Magic happens.</h2>
-                            <p className="text-stone-500">We've generated 3 unique realities for your dream home.</p>
+                            <p className="text-stone-500">We've generated unique realities for your dream home.</p>
                         </div>
                         <PlanResults plans={plans} onSave={handleManualSave} requestData={requestData} />
                         <div className="pt-10 flex justify-center">
